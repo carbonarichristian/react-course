@@ -5,14 +5,6 @@ function Counter() {
   const [step, setStep] = useState(1);
   const [count, setCount] = useState(0);
 
-  function increaseStep() {
-    setStep(step + 1);
-  }
-
-  function decreaseStep() {
-    step > 1 ? setStep(step - 1): alert('Step cannot be less than 1');
-  }
-
   function increaseCount() {
     setCount(count + step);
   }
@@ -21,14 +13,24 @@ function Counter() {
     setCount(count - step);
   }
 
+  function reset() {
+    setCount(0);
+    setStep(1);
+    document.querySelector('input[type="range"]').value = 1;
+  }
+
   return (
     <div className='Counter'>
-      <button onClick={decreaseStep} >-</button>
-      <span>Step: {step}</span>
-      <button onClick={increaseStep} >+</button>
+      <h1>Date Counter</h1>
+      <input type='range'
+        min={0}
+        max={10}
+        onChange={ (e) => setStep(Number(e.target.value)) }
+      >
+      </input>
       <br />
       <button onClick={decreaseCount} >-</button>
-      <span>Count: {count}</span>
+      <input type='number' value={count} onChange={ (e) => setCount(Number(e.target.value)) } />
       <button onClick={increaseCount} >+</button>
       <hr />
       {
@@ -51,6 +53,11 @@ function Counter() {
         )
       }
 
+      {
+        (count !== 0 || step !== 1) ?
+        <button onClick={reset}>Reset</button>
+        : null
+      }
 
 
     </div>
