@@ -100,12 +100,19 @@ function Item({item, onDeleteItem, onTogglePacked}) {
 }
 
 function Stats({items}) {
+  if (items.length === 0)
+    return(
+      <div className="stats">
+        <p>Start adding something in your list!</p>
+      </div>
+    )
+
   const itemsPacked = items.filter((item) => item.packed).length;
+  const percentagePacked = items.length > 0 ? itemsPacked / items.length * 100 : 0;
 
   return (
     <div className="stats">
-      <h2>Stats</h2>
-      <p>You have <strong>{items.length}</strong> items in your list, <strong>{itemsPacked}</strong> items already packed </p>
+      <p>You have <strong>{items.length}</strong> items in your list, <strong>{itemsPacked}</strong> items already packed ({percentagePacked}%) </p>
     </div>
   )
 }
