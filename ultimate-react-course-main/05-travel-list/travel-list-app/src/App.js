@@ -7,11 +7,16 @@ export default function App() {
     setItems(items => [...items, item]);
   }
 
+  function handleDeleteItem(id) {
+    console.log(id);
+    setItems(items => items.filter((items) => items.id !== id));
+  }
+
   return (
     <div className="App">
       <Logo />
       <Form onAddItem={handleAddItem}/>
-      <PackingList items={items} />
+      <PackingList items={items} onDeleteItem={handleDeleteItem} />
       <Stats />
     </div>
   );
@@ -61,27 +66,27 @@ function Form({onAddItem}) {
   )
 }
 
-function PackingList({items}) {
+function PackingList({items, onDeleteItem}) {
   return (
     <div className="list">
       <h2>Packing List</h2>
       <ul>
         {items.map(item => (
-          <Item key={item.id} item={item} />
+          <Item key={item.id} item={item} onDeleteItem={onDeleteItem}/>
         ))}
       </ul>
     </div>
   )
 }
 
-function Item(props) {
+function Item({item, onDeleteItem}) {
   return (
     <li>
-      <input type="checkbox" checked={props.item.packed ? true : null} />
-      <span style={props.item.packed ? {textDecoration: "line-through"} : null}>
-        {props.item.quantity} {props.item.description}
+      <input type="checkbox" checked={item.packed ? true : null} />
+      <span style={item.packed ? {textDecoration: "line-through"} : null}>
+        {item.quantity} {item.description}
       </span>
-      <button>❌</button>
+      <button onClick={() => onDeleteItem(item.id)}>❌</button>
     </li>
   )
 
