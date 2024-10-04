@@ -12,12 +12,19 @@ export default function App() {
     setItems(items => items.filter((items) => items.id !== id));
   }
 
+  function handleTogglePacked(id) {
+    setItems(items => items.map((item) => {
+      if (item.id !== id) return item;
+      return {...item, packed: !item.packed};
+    }));
+  }
+
   return (
     <div className="App">
       <Logo />
       <Form onAddItem={handleAddItem}/>
-      <PackingList items={items} onDeleteItem={handleDeleteItem} />
-      <Stats />
+      <PackingList items={items} onDeleteItem={handleDeleteItem} onTogglePacked={handleTogglePacked} />
+      <Stats items={items} />
     </div>
   );
 }
@@ -46,7 +53,7 @@ function Form({onAddItem}) {
     onAddItem(newItem);
     setDescription("");
     setQuantity(1);
-
+    document.querySelector("input").value = "";
   }
 
   return (
@@ -66,23 +73,23 @@ function Form({onAddItem}) {
   )
 }
 
-function PackingList({items, onDeleteItem}) {
+function PackingList({items, onDeleteItem, onTogglePacked}) {
   return (
     <div className="list">
       <h2>Packing List</h2>
       <ul>
         {items.map(item => (
-          <Item key={item.id} item={item} onDeleteItem={onDeleteItem}/>
+          <Item key={item.id} item={item} onDeleteItem={onDeleteItem} onTogglePacked={onTogglePacked}/>
         ))}
       </ul>
     </div>
   )
 }
 
-function Item({item, onDeleteItem}) {
+function Item({item, onDeleteItem, onTogglePacked}) {
   return (
     <li>
-      <input type="checkbox" checked={item.packed ? true : null} />
+      <input type="checkbox" checked={item.packed} onChange={() => onTogglePacked(item.id) }/>
       <span style={item.packed ? {textDecoration: "line-through"} : null}>
         {item.quantity} {item.description}
       </span>
@@ -92,11 +99,13 @@ function Item({item, onDeleteItem}) {
 
 }
 
-function Stats() {
+function Stats({items}) {
+  const itemsPacked = items.filter((item) => item.packed).length;
+
   return (
     <div className="stats">
       <h2>Stats</h2>
-      <p>Items packed: 3</p>
+      <p>You have <strong>{items.length}</strong> items in your list, <strong>{itemsPacked}</strong> items already packed </p>
     </div>
   )
 }
