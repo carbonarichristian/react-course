@@ -16,4 +16,9 @@ code {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 20px;
+}
+
+span {
+  font-size: 1.1rem;
 }
