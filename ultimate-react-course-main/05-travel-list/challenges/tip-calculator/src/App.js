@@ -1,25 +1,18 @@
-import logo from './logo.svg';
-import './App.css';
-
-function App() {
+export default function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Tip Calculator</h1>
+      <InputItem label="How much was the bill?" type="text" />
+      <InputItem label="How did you like the service?"  />
     </div>
   );
 }
 
-export default App;
+function InputItem({ label, type }) {
+  return (
+    <div>
+      <p>{label}</p>
+      <input type={type} />
+    </div>
+  );
+}
