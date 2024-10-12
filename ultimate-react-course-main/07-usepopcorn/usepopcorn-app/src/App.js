@@ -1,6 +1,4 @@
 import { useState } from "react";
-import Navbar from "./components/Navbar";
-import Main from "./components/Main";
 
 const tempMovieData = [
   {
@@ -60,4 +58,110 @@ export default function App() {
       <Main movies={movies} watched={watched} />
     </>
   );
+}
+
+
+function Navbar(movies) {
+  const [query, setQuery] = useState("");
+
+  return (
+    <nav className="nav-bar">
+        <div className="logo">
+          <span role="img">🍿</span>
+          <h1>usePopcorn</h1>
+        </div>
+        <input
+          className="search"
+          type="text"
+          placeholder="Search movies..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <p className="num-results">
+          Found <strong>{movies.length}</strong> results
+        </p>
+      </nav>
+  )
+}
+
+function Main({movies, watched}) {
+  const [isOpen1, setIsOpen1] = useState(true);
+  const [isOpen2, setIsOpen2] = useState(true);
+
+  return (
+    <main className="main">
+      <Box movies={movies} open={isOpen1} onOpen={setIsOpen1} />
+      <Box movies={watched} open={isOpen2} onOpen={setIsOpen2} />
+    </main>
+  )
+}
+
+function Box({movies, open, onOpen}) {
+  return (
+    <div className="box">
+      <button
+        className="btn-toggle"
+        onClick={() => onOpen((open) => !open)}
+      >
+        {open ? "–" : "+"}
+      </button>
+      <List open={open} movies={movies} />
+    </div>
+  )
+}
+
+function List({movies, open, onOpen}) {
+  return (
+    <>
+      {open && (
+        <ul className="list">
+          {movies?.map((movie) => (
+            <li key={movie.imdbID}>
+              <img src={movie.Poster} alt={`${movie.Title} poster`} />
+              <h3>{movie.Title}</h3>
+              <div>
+                <p>
+                  <span>🗓</span>
+                  <span>{movie.Year}</span>
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  )
+}
+
+function Summary({watched}) {
+  const average = (arr) =>
+    arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
+
+  const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
+  const avgUserRating = average(watched.map((movie) => movie.userRating));
+  const avgRuntime = average(watched.map((movie) => movie.runtime));
+
+  return (
+    <div className="summary">
+      <h2>Movies you watched</h2>
+      <div>
+        <p>
+          <span>#️⃣</span>
+          <span>{watched.length} movies</span>
+        </p>
+        <p>
+          <span>⭐️</span>
+          <span>{avgImdbRating}</span>
+        </p>
+        <p>
+          <span>🌟</span>
+          <span>{avgUserRating}</span>
+        </p>
+        <p>
+          <span>⏳</span>
+          <span>{avgRuntime} min</span>
+        </p>
+      </div>
+    </div>
+  )
 }
