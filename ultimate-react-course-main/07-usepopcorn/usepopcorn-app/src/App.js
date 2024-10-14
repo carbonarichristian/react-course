@@ -1,4 +1,5 @@
 import { useState } from "react";
+import StarRating from "./components/StarRating";
 
 const tempMovieData = [
   {
@@ -55,7 +56,15 @@ export default function App() {
   return (
     <>
       <Navbar movies={movies} />
-      <Main movies={movies} watched={watched} />
+      <Main >
+        <Box >
+          <List movies={movies} />
+        </Box>
+        <Box >
+          <Summary watched={watched} />
+          <List movies={watched} />
+        </Box>
+      </Main>
     </>
   );
 }
@@ -84,51 +93,48 @@ function Navbar(movies) {
   )
 }
 
-function Main({movies, watched}) {
-  const [isOpen1, setIsOpen1] = useState(true);
-  const [isOpen2, setIsOpen2] = useState(true);
+function Main({children}) {
 
   return (
     <main className="main">
-      <Box movies={movies} open={isOpen1} onOpen={setIsOpen1} />
-      <Box movies={watched} open={isOpen2} onOpen={setIsOpen2} />
+      { children }
     </main>
   )
 }
 
-function Box({movies, open, onOpen}) {
+function Box({children}) {
+  const [isOpen, setIsOpen] = useState(true);
+
   return (
     <div className="box">
       <button
         className="btn-toggle"
-        onClick={() => onOpen((open) => !open)}
+        onClick={() => setIsOpen((isOpen) => !isOpen)}
       >
-        {open ? "–" : "+"}
+        {isOpen ? "–" : "+"}
       </button>
-      <List open={open} movies={movies} />
+      {isOpen && children}
     </div>
   )
 }
 
-function List({movies, open, onOpen}) {
+function List({movies}) {
   return (
     <>
-      {open && (
-        <ul className="list">
-          {movies?.map((movie) => (
-            <li key={movie.imdbID}>
-              <img src={movie.Poster} alt={`${movie.Title} poster`} />
-              <h3>{movie.Title}</h3>
-              <div>
-                <p>
-                  <span>🗓</span>
-                  <span>{movie.Year}</span>
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul className="list">
+        {movies?.map((movie) => (
+          <li key={movie.imdbID}>
+            <img src={movie.Poster} alt={`${movie.Title} poster`} />
+            <h3>{movie.Title}</h3>
+            <div>
+              <p>
+                <span>🗓</span>
+                <span>{movie.Year}</span>
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
     </>
   )
 }
