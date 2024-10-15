@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import StarRating from "./components/StarRating";
 
 const tempMovieData = [
@@ -50,15 +50,51 @@ const tempWatchedData = [
 
 
 export default function App() {
-  const [movies, setMovies] = useState(tempMovieData);
+  const [movies, setMovies] = useState(null);
   const [watched, setWatched] = useState(tempWatchedData);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(
+          "https://www.omdbapi.com/?s=matrix&apikey=4a3b711b"
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch movies");
+        }
+
+        console.log(response);
+
+        const data = await response.json();
+        if (data.Response === "False") {
+          throw new Error("No movies found");
+        }
+        setMovies(data.Search);
+        setIsLoading(false);
+
+      } catch (error) {
+        console.error(error.message);
+        setError(error.message);
+
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMovies();
+  }, []);
 
   return (
     <>
       <Navbar movies={movies} />
       <Main >
         <Box >
-          <List movies={movies} />
+          {isLoading && <Loader />}
+          {!isLoading && !error && <List movies={movies} />}
+          {error && <Error message={error} />}
         </Box>
         <Box >
           <Summary watched={watched} />
@@ -114,6 +150,22 @@ function Box({children}) {
         {isOpen ? "–" : "+"}
       </button>
       {isOpen && children}
+    </div>
+  )
+}
+
+function Loader() {
+  return (
+    <div className="loader">
+      <p>Loading...</p>
+    </div>
+  )
+}
+
+function Error({message}) {
+  return (
+    <div className="error">
+      <p>❌{message}</p>
     </div>
   )
 }
