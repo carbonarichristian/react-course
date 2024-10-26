@@ -48,53 +48,57 @@ const tempWatchedData = [
   },
 ];
 
+const KEY = "4a3b711b"
+const BASE_URL ="http://www.omdbapi.com/?"
+
 
 export default function App() {
-  const [movies, setMovies] = useState(null);
+  const [movies, setMovies] = useState(tempMovieData);
   const [watched, setWatched] = useState(tempWatchedData);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
         setIsLoading(true);
         const response = await fetch(
-          "https://www.omdbapi.com/?s=matrix&apikey=4a3b711b"
+          `${BASE_URL}apikey=${KEY}&s=${query}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch movies");
         }
 
-        console.log(response);
-
         const data = await response.json();
+        console.log(data.Response);
         if (data.Response === "False") {
           throw new Error("No movies found");
         }
         setMovies(data.Search);
         setIsLoading(false);
-
+        setErrorMessage("");
       } catch (error) {
-        console.error(error.message);
-        setError(error.message);
-
+        setErrorMessage(error.message);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchMovies();
-  }, []);
+  }, [query]);
 
   return (
     <>
-      <Navbar movies={movies} />
+      <Navbar
+        search={<Search query={query} setQuery={setQuery} />}
+        NumResult={<NumResult movies={movies} />}
+      />
       <Main >
         <Box >
           {isLoading && <Loader />}
-          {!isLoading && !error && <List movies={movies} />}
-          {error && <Error message={error} />}
+          {!isLoading && !errorMessage && <List movies={movies} query={query} />}
+          {errorMessage && <Error message={errorMessage} />}
         </Box>
         <Box >
           <Summary watched={watched} />
@@ -106,27 +110,41 @@ export default function App() {
 }
 
 
-function Navbar(movies) {
-  const [query, setQuery] = useState("");
+function Navbar({search, NumResult}) {
 
   return (
     <nav className="nav-bar">
-        <div className="logo">
-          <span role="img">🍿</span>
-          <h1>usePopcorn</h1>
-        </div>
-        <input
-          className="search"
-          type="text"
-          placeholder="Search movies..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <p className="num-results">
-          Found <strong>{movies.length}</strong> results
-        </p>
-      </nav>
+      {search}
+      {NumResult}
+    </nav>
   )
+}
+
+function Search({setQuery}) {
+
+  return (
+    <>
+      <div className="logo">
+            <span role="img">🍿</span>
+            <h1>usePopcorn</h1>
+      </div>
+      <input
+            className="search"
+            type="text"
+            placeholder="Search movies..."
+            onBlur={(e) => setQuery(e.target.value)}
+      />
+    </>
+  )
+}
+
+function NumResult({movies}) {
+  return (
+    <p className="num-results">
+      Found <strong>{movies.length}</strong> {movies.length === 1 ? "movie" : "movies"}
+    </p>
+  )
+
 }
 
 function Main({children}) {
@@ -176,7 +194,7 @@ function List({movies}) {
       <ul className="list">
         {movies?.map((movie) => (
           <li key={movie.imdbID}>
-            <img src={movie.Poster} alt={`${movie.Title} poster`} />
+            <img src={movie.Poster === "N/A" ? "https://via.placeholder.com/300x450" : movie.Poster } alt={`${movie.Title} poster`} />
             <h3>{movie.Title}</h3>
             <div>
               <p>
